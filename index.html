@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cocina Paso a Paso</title>
+<style>
+:root{
+  --bg:#F6F4EF; --surface:#FFFFFF; --text:#1E2A32; --muted:#4A5862;
+  --primary:#2D5F5D; --primary-soft:#E3ECEA; --border:#CFD6D3;
+  --safety-bg:#FBF1E3; --safety:#6B3F0C; --off-bg:#E4E7E6; --off-text:#3F4B52;
+  --focus:#1F4E8C;
+  --fs:1rem; --radius:14px; --on-primary:#FFFFFF; --page:#DDE2E0;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#1B2226;--surface:#232C31;--text:#E8ECEA;--muted:#B7C1C4;--primary:#8CC2BB;--primary-soft:#2C3D3D;--border:#3D4A50;--safety-bg:#3A2E1F;--safety:#F0D3A8;--off-bg:#33393C;--off-text:#C9D0D2;--focus:#9DC1F5;--on-primary:#13201F;--page:#111618}}
+:root[data-theme="dark"]{--bg:#1B2226;--surface:#232C31;--text:#E8ECEA;--muted:#B7C1C4;--primary:#8CC2BB;--primary-soft:#2C3D3D;--border:#3D4A50;--safety-bg:#3A2E1F;--safety:#F0D3A8;--off-bg:#33393C;--off-text:#C9D0D2;--focus:#9DC1F5;--on-primary:#13201F;--page:#111618}
+:root.grande{ --fs:1.3rem; }
+*{box-sizing:border-box}
+html{font-size:100%}
+body{margin:0;background:var(--page);color:var(--text);font-family:Inter,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.55;}
+.phone{max-width:420px;min-height:100vh;margin:0 auto;background:var(--bg);display:flex;flex-direction:column;}
+@media(min-width:600px){.phone{min-height:860px;margin:24px auto;border-radius:28px;overflow:hidden;box-shadow:0 0 0 1px var(--border)}}
+header.top{padding:14px 16px 10px;border-bottom:1px solid var(--border);background:var(--surface)}
+.brand{font-weight:700;font-size:calc(var(--fs)*1.05);color:var(--primary)}
+.where{font-size:calc(var(--fs)*.85);color:var(--muted)}
+/* Barra de apoyos siempre visible */
+.apoyos{display:flex;gap:6px;padding:8px 12px;background:var(--surface);border-bottom:1px solid var(--border)}
+.apoyos .lbl{position:absolute;left:-9999px}
+.apoyo{flex:1;min-height:48px;border:2px solid var(--border);background:var(--surface);color:var(--text);border-radius:12px;font:inherit;font-size:calc(var(--fs)*.8);font-weight:600;cursor:pointer;padding:4px 6px;line-height:1.2}
+.apoyo[aria-pressed="true"]{background:var(--primary-soft);border-color:var(--primary)}
+.apoyo .st{display:block;font-weight:500;font-size:.85em;color:var(--muted)}
+main{flex:1;padding:18px 16px 24px;font-size:var(--fs)}
+h1{font-size:calc(var(--fs)*1.45);line-height:1.25;margin:0 0 6px}
+h2{font-size:calc(var(--fs)*1.15);margin:22px 0 8px}
+p{margin:0 0 12px}
+.muted{color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin:0 0 12px}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:52px;border-radius:12px;border:2px solid var(--primary);background:var(--primary);color:var(--on-primary);font:inherit;font-size:var(--fs);font-weight:600;cursor:pointer;padding:10px 16px;margin-top:10px;text-align:center}
+.btn.sec{background:var(--surface);color:var(--primary)}
+.btn[disabled]{background:var(--off-bg);border-color:var(--off-bg);color:var(--off-text);cursor:not-allowed}
+.row{display:flex;gap:10px}.row .btn{flex:1}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+.act{display:block;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer}
+.act .tag{display:inline-block;font-size:.8em;background:var(--primary-soft);border-radius:999px;padding:2px 10px;margin-right:6px}
+.act.locked{opacity:1;cursor:default}
+.check{display:flex;gap:12px;align-items:flex-start;min-height:52px;padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--surface);margin-bottom:10px;cursor:pointer}
+.check input{width:28px;height:28px;flex:none;margin:0;accent-color:var(--primary)}
+.check.on{border-color:var(--primary);background:var(--primary-soft)}
+.safety{background:var(--safety-bg);color:var(--safety);border:2px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:12px;font-weight:500}
+table{width:100%;border-collapse:collapse}td{padding:8px 4px;border-bottom:1px solid var(--border)}td:last-child{text-align:right;font-weight:600}
+.progress{height:12px;background:var(--off-bg);border-radius:999px;overflow:hidden;margin:6px 0 4px}
+.progress>i{display:block;height:100%;background:var(--primary)}
+.step{border:2px solid var(--border);border-radius:var(--radius);background:var(--surface);padding:16px;margin-bottom:10px}
+.step.current{border-color:var(--primary)}
+.step.done{background:var(--off-bg)}
+.step h3{margin:0 0 6px;font-size:calc(var(--fs)*1.1)}
+.stepnum{font-size:.85em;color:var(--muted);font-weight:600}
+.timer{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin:10px 0}
+.timer b{font-variant-numeric:tabular-nums;font-size:calc(var(--fs)*1.3)}
+.timer .btn{width:auto;margin:0;min-height:48px}
+.listen{display:inline-flex;align-items:center;gap:6px;min-height:44px;min-width:44px;padding:6px 12px;border-radius:10px;border:2px solid var(--primary);background:var(--surface);color:var(--primary);font:inherit;font-size:.9em;font-weight:600;cursor:pointer;margin:4px 0 10px}
+.opt{display:block;width:100%;text-align:left;min-height:52px;padding:12px;border:2px solid var(--border);border-radius:12px;background:var(--surface);font:inherit;color:inherit;margin-bottom:8px;cursor:pointer}
+.opt.sel{border-color:var(--primary);background:var(--primary-soft)}
+.fb{border-left:6px solid var(--primary);background:var(--surface);padding:10px 12px;border-radius:8px;margin:8px 0 14px}
+textarea{width:100%;min-height:110px;font:inherit;font-size:var(--fs);padding:10px;border:2px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text)}
+.ev{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+.ev .opt{flex:1 1 30%;text-align:center;font-weight:600}
+img.prev{max-width:100%;border-radius:12px;margin-top:8px}
+nav.bottom{display:flex;border-top:1px solid var(--border);background:var(--surface)}
+nav.bottom button{flex:1;min-height:56px;border:0;background:none;font:inherit;font-size:.8rem;color:var(--muted);cursor:pointer}
+nav.bottom button[aria-current="page"]{color:var(--primary);font-weight:700;box-shadow:inset 0 3px 0 var(--primary)}
+.tabs{display:flex;gap:4px;margin:0 0 14px;font-size:.85em}
+.tabs span{flex:1;text-align:center;padding:6px 4px;border-bottom:3px solid var(--border);color:var(--muted)}
+.tabs span.on{border-color:var(--primary);color:var(--text);font-weight:700}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px;border:2px solid var(--border);border-radius:12px;background:var(--surface);margin-bottom:10px;min-height:56px}
+.sw input{width:52px;height:30px;accent-color:var(--primary)}
+.small{font-size:.85em}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<div class="phone">
+  <header class="top">
+    <div class="brand">Cocina Paso a Paso</div>
+    <div class="where" id="where">Inicio</div>
+  </header>
+  <div class="apoyos" role="group" aria-label="Tus apoyos">
+    <button class="apoyo" data-apoyo="textoGrande" aria-pressed="false">Texto grande<span class="st"></span></button>
+    <button class="apoyo" data-apoyo="unPaso" aria-pressed="false">Un paso a la vez<span class="st"></span></button>
+    <button class="apoyo" data-apoyo="escuchar" aria-pressed="false">Escuchar<span class="st"></span></button>
+  </div>
+  <main id="app" tabindex="-1"></main>
+  <nav class="bottom" aria-label="Secciones">
+    <button data-go="catalogo">Actividades</button>
+    <button data-go="apoyos">Mis apoyos</button>
+    <button data-go="adulto">Guía adulto</button>
+    <button data-go="proyecto">El proyecto</button>
+  </nav>
+</div>
+
+<script>
+/* ===== Datos (coinciden con el modelo de datos del Entregable 3) ===== */
+const RECETA = {
+  id:1, nombre:"Bruschetta de tomate", pais:"Italia", porciones:4, tecnica:"Tostado y montaje", minutosSugeridos:45,
+  ingredientes:[["Pan","8 rebanadas"],["Tomate","400 g"],["Albahaca","10 g"],["Aceite de oliva","20 ml"],["Ajo","1 diente"],["Sal","2 g"]],
+  utensilios:["Balanza","Tabla","Cuchillo","Tazón","Cuchara","Tostador o sartén"],
+  alergenos:"Trigo / gluten. Revisa también la etiqueta del pan.",
+  checklist:[
+    {k:"higiene", t:"Mis manos y mi área están limpias."},
+    {k:"alergenos", t:"Revisé ingredientes y alérgenos (trigo / gluten) con la docente o con un adulto."},
+    {k:"organizacion", t:"Organicé utensilios e ingredientes."},
+    {k:"supervision", t:"Hay un adulto presente. Acordamos cómo usar el cuchillo y el calor."}
+  ],
+  pasos:[
+    {t:"Preparar el espacio", d:"Lava tus manos. Prepara una superficie limpia y utensilios limpios. Revisa los ingredientes y los alérgenos.", sug:"5 min"},
+    {t:"Lavar y pesar", d:"Lava el tomate y la albahaca. Pesa cada ingrediente y ponlo en su propio recipiente.", sug:"8 min"},
+    {t:"Cortar y mezclar", d:"Corta el tomate en cubos. En el tazón, mezcla el tomate con la albahaca, el aceite y la sal.", sug:"10 min", riesgo:"Cuchillo: el adulto está contigo."},
+    {t:"Tostar el pan y usar el ajo", d:"Tuesta las rebanadas de pan. Pide al adulto que retire el pan caliente. Cuando se pueda tocar, frota el diente de ajo pelado sobre cada rebanada.", sug:"8 min", riesgo:"Calor: el adulto está contigo."},
+    {t:"Montar y presentar", d:"Pon la mezcla sobre el pan justo antes de servir. Describe cómo quedó el tostado y explica por qué preparaste los ingredientes antes de montar.", sug:"6 min"},
+    {t:"Cerrar la práctica", d:"Guarda los sobrantes, limpia tu área y comparte una evidencia de lo que aprendiste.", sug:"8 min"}
+  ]
+};
+const RETO = [
+  {q:"¿Por qué preparamos los ingredientes antes de montar la bruschetta?",
+   o:["Para que el pan siga crujiente: se monta justo antes de servir.","Porque así se cocina el tomate.","No importa el orden."],
+   ok:0, fb:["Así es. Si la mezcla espera mucho sobre el pan, el pan se humedece.","Una pista: el tomate no se cocina en esta receta. Piensa en qué le pasa al pan si espera con la mezcla encima.","Una pista: piensa en qué le pasa al pan crujiente si se moja antes de comer."]},
+  {q:"¿En qué momento usamos el ajo?",
+   o:["Lo mezclamos con el tomate.","Lo frotamos sobre el pan ya tostado.","Lo tostamos con el pan."],
+   ok:1, fb:["Una pista: revisa el paso 4.","Así es. El pan tostado raspa el ajo y toma su sabor.","Una pista: revisa el paso 4."]}
+];
+
+/* ===== Estado: perfil de apoyos y progreso se guardan por separado ===== */
+const KEY="cocina-proto-v1";
+let S = load() || {
+  perfil:{textoGrande:false,unPaso:false,escuchar:false, historial:[]},
+  screen:"inicio",
+  seg:{}, paso:0, hechos:[], tiempos:[0,0,0,0,0,0], pausas:0, corriendo:false,
+  reto:{}, ev:{foto:null,audio:false,texto:""}
+};
+function load(){try{return JSON.parse(localStorage.getItem(KEY))}catch(e){return null}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+/* Permite abrir directamente una pantalla: ?pantalla=receta&texto=grande */
+const qp=new URLSearchParams(location.search);
+if(qp.get("pantalla")){S.screen=qp.get("pantalla"); if(["receta","reto","evidencia","cierre"].includes(S.screen)) RECETA.checklist.forEach(c=>S.seg[c.k]=true);}
+if(qp.get("texto")==="grande") S.perfil.textoGrande=true;
+if(qp.get("unpaso")==="1") S.perfil.unPaso=true;
+if(qp.get("escuchar")==="1") S.perfil.escuchar=true;
+if(qp.get("paso")) {S.paso=+qp.get("paso"); S.hechos=[...Array(S.paso).keys()];}
+
+const $=s=>document.querySelector(s);
+const app=$("#app");
+const NOMBRES={inicio:"Inicio",catalogo:"Actividades",apoyos:"Mis apoyos",receta_info:"Bruschetta · Antes de empezar",seguridad:"Bruschetta · Checklist de seguridad",receta:"Bruschetta · 1. Receta visual",reto:"Bruschetta · 2. Tu reto",evidencia:"Bruschetta · 3. Mi evidencia",cierre:"Bruschetta · Cierre",adulto:"Guía para el adulto",proyecto:"El proyecto"};
+
+function go(s){
+  if(s==="receta" && !seguridadOK()) s="seguridad"; // ningún apoyo ni atajo salta la seguridad
+  S.screen=s; save(); render(); app.focus(); window.scrollTo(0,0);
+}
+function seguridadOK(){return RECETA.checklist.every(c=>S.seg[c.k])}
+
+/* ===== Lectura en voz alta: solo cuando la persona la pide ===== */
+/* Estilos de voz propios: solo cambian velocidad y tono de las voces del dispositivo */
+const ESTILOS={
+  natural:{n:"Natural",d:"Voz del dispositivo sin cambios.",rate:.9,pitch:1},
+  asistente:{n:"Asistente IA",d:"Serena y precisa, un poco más grave, como una asistente digital.",rate:.92,pitch:.8},
+  tranquila:{n:"Tranquila",d:"Más lenta y suave, para ir sin prisa.",rate:.78,pitch:1.05}
+};
+if(!S.perfil.voz) S.perfil.voz={estilo:"natural",nombre:""};
+function vocesES(){ if(!("speechSynthesis" in window)) return []; return speechSynthesis.getVoices().filter(v=>/^es/i.test(v.lang)); }
+if("speechSynthesis" in window) speechSynthesis.onvoiceschanged=()=>{ if(S.screen==="apoyos") render(); };
+/* Audios pregrabados: si existe audio/<id>.mp3 se reproduce; si no, se usa la voz del dispositivo */
+const CARPETA_AUDIO="audio/";
+let audioActual=null;
+function say(t,id){
+  if(audioActual){audioActual.pause();audioActual=null}
+  if("speechSynthesis" in window) speechSynthesis.cancel();
+  if(!id) return sayTTS(t);
+  const a=new Audio(CARPETA_AUDIO+id+".mp3"); audioActual=a;
+  a.play().catch(()=>{ if(audioActual===a){audioActual=null; sayTTS(t);} });
+}
+function sayTTS(t){
+  if(!("speechSynthesis" in window)) {alert("Lectura en voz alta (simulada): "+t);return}
+  speechSynthesis.cancel(); const u=new SpeechSynthesisUtterance(t); const e=ESTILOS[S.perfil.voz.estilo]||ESTILOS.natural;
+  const v=vocesES().find(x=>x.name===S.perfil.voz.nombre);
+  if(v){u.voice=v;u.lang=v.lang}else u.lang="es-MX";
+  u.rate=e.rate; u.pitch=e.pitch; speechSynthesis.speak(u);
+}
+function listenBtn(id,t){return S.perfil.escuchar?`<button class="listen" data-clip="${id}" data-say="${encodeURIComponent(t)}" aria-label="Escuchar en voz alta">▶ Escuchar</button>`:""}
+
+/* ===== Temporizador (cronómetro sin límite, con pausa) ===== */
+let tick=null;
+function fmt(s){const m=Math.floor(s/60),x=s%60;return `${String(m).padStart(2,"0")}:${String(x).padStart(2,"0")}`}
+function startTick(){ if(tick) clearInterval(tick); tick=setInterval(()=>{ if(S.corriendo && S.screen==="receta"){S.tiempos[S.paso]++; save(); const el=$("#tm"); if(el) el.textContent=fmt(S.tiempos[S.paso]);} },1000); }
+startTick();
+
+/* ===== Pantallas ===== */
+const V={
+inicio:()=>`
+  <h1>Hola. Hoy cocinamos desde casa.</h1>
+  <p class="muted">Tú decides el ritmo. No hay límite de tiempo ni puntajes.</p>
+  ${listenBtn("inicio","Hola. Hoy cocinamos desde casa. Tú decides el ritmo. No hay límite de tiempo ni puntajes.")}
+  <div class="card"><b>Antes de cocinar</b><p class="small muted" style="margin:4px 0 0">Necesitas un adulto contigo en casa. La app te acompaña, pero no reemplaza al adulto.</p></div>
+  <div class="card"><b>Tus apoyos</b><p class="small muted" style="margin:4px 0 0">Arriba están tres botones: Texto grande, Un paso a la vez y Escuchar. Puedes prenderlos o apagarlos cuando quieras. Se guardan en tu perfil.</p></div>
+  <button class="btn" data-go="catalogo">Ver actividades</button>
+  <button class="btn sec" data-go="apoyos">Elegir mis apoyos</button>`,
+
+catalogo:()=>`
+  <h1>Actividades</h1>
+  <p class="muted">Sesión sugerida: 45 minutos. Los retos no tienen límite de tiempo.</p>
+  ${listenBtn("catalogo","Actividades. Bruschetta de tomate, de Italia, disponible. Ensalada griega y yakisoba, próximamente.")}
+  <button class="card act" data-go="receta_info"><span class="tag">Italia</span><span class="tag">Disponible</span><h2 style="margin:8px 0 4px">Bruschetta de tomate</h2><span class="small muted">Tostado y montaje · 4 porciones · 6 pasos</span></button>
+  <div class="card act locked"><span class="tag">Grecia</span><span class="small muted">Próximamente</span><h2 style="margin:8px 0 4px">Ensalada griega</h2></div>
+  <div class="card act locked"><span class="tag">Japón</span><span class="small muted">Próximamente</span><h2 style="margin:8px 0 4px">Yakisoba</h2></div>`,
+
+apoyos:()=>`
+  <h1>Mis apoyos</h1>
+  <p class="muted">Los apoyos son para todas y todos. Elige los que te sirvan hoy. Puedes cambiarlos a mitad de una receta y no pierdes tu avance.</p>
+  ${[["textoGrande","Texto grande","Letras más grandes en toda la app."],["unPaso","Un paso a la vez","Ves solo el paso actual. Los demás quedan ocultos."],["escuchar","Escuchar","Aparece un botón para oír el texto. Nada suena si no lo pides."]].map(([k,t,d])=>`
+  <label class="sw"><span><b>${t}</b><br><span class="small muted">${d}</span></span><input type="checkbox" role="switch" data-sw="${k}" ${S.perfil[k]?"checked":""}></label>`).join("")}
+  <h2>Voz para “Escuchar”</h2>
+  <div class="card">
+    <b>Estilo</b>
+    <div style="margin-top:8px">${Object.entries(ESTILOS).map(([k,e])=>`<button class="opt ${S.perfil.voz.estilo===k?"sel":""}" data-estilo="${k}" aria-pressed="${S.perfil.voz.estilo===k}"><b>${e.n}</b><br><span class="small muted">${e.d}</span></button>`).join("")}</div>
+    <label for="selvoz"><b>Voz del dispositivo</b></label>
+    <select id="selvoz" data-voz style="width:100%;min-height:48px;margin:6px 0 4px;font:inherit;font-size:var(--fs);padding:8px;border:2px solid var(--border);border-radius:12px;background:var(--surface);color:var(--text)">
+      <option value="">Automática (español)</option>
+      ${vocesES().map(v=>`<option value="${v.name}" ${S.perfil.voz.nombre===v.name?"selected":""}>${v.name} (${v.lang})</option>`).join("")}
+    </select>
+    <p class="small muted" style="margin:0">Las voces dependen de tu celular o computadora.</p>
+    <button class="btn sec" data-probar>Probar voz</button>
+  </div>
+  <div class="safety small">Ningún apoyo quita el checklist de seguridad ni la supervisión del adulto.</div>
+  <p class="small muted">Cambios guardados en tu perfil: ${S.perfil.historial.length}</p>
+  <button class="btn" data-go="catalogo">Listo</button>`,
+
+receta_info:()=>`
+  <h1>Bruschetta de tomate</h1>
+  <p class="muted">Italia · 4 porciones · Técnica: tostado y montaje</p>
+  ${listenBtn("ingredientes","Ingredientes para cuatro porciones: ocho rebanadas de pan, cuatrocientos gramos de tomate, diez gramos de albahaca, veinte mililitros de aceite de oliva, un diente de ajo y dos gramos de sal. Alérgenos: trigo y gluten. Revisa también la etiqueta del pan.")}
+  <div class="safety"><b>Alérgenos:</b> ${RECETA.alergenos}</div>
+  <div class="card"><b>Ingredientes</b><table>${RECETA.ingredientes.map(i=>`<tr><td>${i[0]}</td><td>${i[1]}</td></tr>`).join("")}</table></div>
+  ${S.perfil.unPaso?"":`<div class="card"><b>Utensilios</b><p style="margin:6px 0 0">${RECETA.utensilios.join(" · ")}</p></div>`}
+  <button class="btn" data-go="seguridad">Continuar al checklist de seguridad</button>`,
+
+seguridad:()=>{const n=RECETA.checklist.filter(c=>S.seg[c.k]).length; return `
+  <h1>Antes de empezar</h1>
+  <p class="muted">Confirma los 4 puntos. Sin ellos no se abre la receta.</p>
+  ${listenBtn("checklist","Antes de empezar, confirma cuatro puntos. Uno: mis manos y mi área están limpias. Dos: revisé ingredientes y alérgenos, trigo y gluten, con la docente o con un adulto. Tres: organicé utensilios e ingredientes. Cuatro: hay un adulto presente y acordamos cómo usar el cuchillo y el calor.")}
+  ${RECETA.checklist.map(c=>`<label class="check ${S.seg[c.k]?"on":""}"><input type="checkbox" data-seg="${c.k}" ${S.seg[c.k]?"checked":""}><span>${c.t}</span></label>`).join("")}
+  <p class="small muted" aria-live="polite">${n} de 4 confirmados</p>
+  <button class="btn" data-go="receta" ${n<4?"disabled":""}>${n<4?"Confirma los 4 puntos para continuar":"Empezar la receta"}</button>`},
+
+receta:()=>{
+  const total=RECETA.pasos.length, hechos=S.hechos.length, p=RECETA.pasos[S.paso];
+  const one=S.perfil.unPaso;
+  const card=(i)=>{const x=RECETA.pasos[i],d=S.hechos.includes(i),cur=i===S.paso;return `
+    <div class="step ${cur?"current":""} ${d?"done":""}">
+      <div class="stepnum">Paso ${i+1} de ${total}</div>
+      <h3>${x.t}</h3>
+      ${cur||one?`<p>${x.d}</p>${x.riesgo?`<div class="safety small">${x.riesgo}</div>`:""}${listenBtn("paso"+(i+1),"Paso "+(i+1)+". "+x.t+". "+x.d)}`:""}
+      <label class="check ${d?"on":""}" style="margin:0"><input type="checkbox" data-hecho="${i}" ${d?"checked":""}><span>Hecho</span></label>
+    </div>`};
+  return `
+  <div class="tabs"><span class="on">1. Receta visual</span><span>2. Tu reto</span><span>3. Mi evidencia</span></div>
+  <div style="display:flex;justify-content:space-between"><b>${hechos} de ${total} pasos hechos</b></div>
+  <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${hechos}"><i style="width:${hechos/total*100}%"></i></div>
+  <div class="timer"><span><span class="small muted">Tiempo en este paso (sugerido ${p.sug})</span><br><b id="tm">${fmt(S.tiempos[S.paso])}</b></span>
+    <button class="btn ${S.corriendo?"sec":""}" data-timer>${S.corriendo?"Pausar":(S.tiempos[S.paso]?"Reanudar":"Iniciar")}</button></div>
+  ${one?card(S.paso):RECETA.pasos.map((_,i)=>card(i)).join("")}
+  ${one?`<div class="row"><button class="btn sec" data-prev ${S.paso===0?"disabled":""}>Anterior</button><button class="btn" data-next>${S.paso===total-1?"Ir a tu reto":"Siguiente"}</button></div>`
+       :`<button class="btn" data-go="reto" ${hechos<total?"":""}>Ir a tu reto</button>`}
+  <p class="small muted" style="margin-top:10px">Puedes pausar cuando quieras. Las pausas no cuentan como error.</p>`},
+
+reto:()=>`
+  <div class="tabs"><span>1. Receta visual</span><span class="on">2. Tu reto</span><span>3. Mi evidencia</span></div>
+  <h1>Tu reto</h1>
+  <p class="muted">Sin tiempo límite. Puedes cambiar tu respuesta.</p>
+  ${RETO.map((r,qi)=>`<div class="card"><b>${qi+1}. ${r.q}</b>${listenBtn("reto"+(qi+1),r.q+" Opción uno: "+r.o[0]+" Opción dos: "+r.o[1]+" Opción tres: "+r.o[2])}
+    <div style="margin-top:8px">${r.o.map((o,oi)=>`<button class="opt ${S.reto[qi]===oi?"sel":""}" data-reto="${qi}:${oi}">${o}</button>`).join("")}</div>
+    ${S.reto[qi]!==undefined?`<div class="fb" aria-live="polite">${r.fb[S.reto[qi]]}</div>`:""}</div>`).join("")}
+  <button class="btn" data-go="evidencia">Continuar a mi evidencia</button>`,
+
+evidencia:()=>`
+  <div class="tabs"><span>1. Receta visual</span><span>2. Tu reto</span><span class="on">3. Mi evidencia</span></div>
+  <h1>Mostrar lo aprendido</h1>
+  <p class="muted">Elige uno o varios formatos. Todos valen lo mismo.</p>
+  ${listenBtn("evidencia","Mostrar lo aprendido. Puedes tomar una foto, grabar un audio o escribir un texto breve.")}
+  <div class="card"><b>Foto del platillo</b>
+    <p class="small muted" style="margin:4px 0 8px">Fotografía solo el platillo, sin caras.</p>
+    <label class="btn sec" style="margin:0">${S.ev.foto?"Cambiar foto":"Tomar o elegir foto"}<input class="sr" type="file" accept="image/*" capture="environment" data-foto></label>
+    ${S.ev.foto?`<img class="prev" src="${S.ev.foto}" alt="Foto de tu platillo">`:""}</div>
+  <div class="card"><b>Audio</b>
+    <p class="small muted" style="margin:4px 0 8px">Explica en voz alta una decisión: por ejemplo, por qué montaste al final.</p>
+    <button class="btn sec" data-audio style="margin:0">${grabando?"Detener grabación":(S.ev.audio?"Volver a grabar":"Grabar explicación")}</button>
+    ${S.ev.audio?`<p class="small" style="margin:8px 0 0">Audio guardado en este dispositivo.</p>`:""}</div>
+  <div class="card"><b>Texto breve</b>
+    <textarea data-texto placeholder="Cómo quedó el tostado y qué harías distinto la próxima vez.">${S.ev.texto}</textarea></div>
+  <button class="btn" data-go="cierre" ${(S.ev.foto||S.ev.audio||S.ev.texto.trim())?"":"disabled"}>${(S.ev.foto||S.ev.audio||S.ev.texto.trim())?"Enviar a mi docente":"Agrega al menos un formato"}</button>`,
+
+cierre:()=>{const tt=S.tiempos.reduce((a,b)=>a+b,0);const n=[S.ev.foto&&"foto",S.ev.audio&&"audio",S.ev.texto.trim()&&"texto"].filter(Boolean);return `
+  <h1>Terminaste la práctica</h1>
+  <p>Cocinaste una bruschetta de tomate y mostraste lo que aprendiste.</p>
+  ${listenBtn("cierre","Terminaste la práctica. Cocinaste una bruschetta de tomate y mostraste lo que aprendiste.")}
+  <div class="card"><b>Tu resumen</b><table>
+    <tr><td>Pasos hechos</td><td>${S.hechos.length} de 6</td></tr>
+    <tr><td>Tiempo cocinando</td><td>${fmt(tt)}</td></tr>
+    <tr><td>Pausas que tomaste</td><td>${S.pausas}</td></tr>
+    <tr><td>Evidencia enviada</td><td>${n.join(", ")||"pendiente"}</td></tr></table></div>
+  <div class="fb">Tu docente verá tu evidencia y te dejará un comentario. Aquí no hay calificación ni puntos.</div>
+  <div class="card"><b>Para la próxima vez</b><p class="small" style="margin:4px 0 0">Puedes comparar esta evidencia con tu siguiente intento.</p></div>
+  <button class="btn" data-reset>Volver a actividades</button>`},
+
+adulto:()=>`
+  <h1>Guía para el adulto en casa</h1>
+  <p class="muted">Gracias por acompañar. Tu presencia es obligatoria en los pasos con cuchillo (paso 3) y calor (paso 4).</p>
+  <div class="card"><b>Qué hacer</b><ul style="margin:6px 0 0;padding-left:20px"><li>Revisa la etiqueta del pan (trigo / gluten).</li><li>Deja que el estudiante marque cada paso.</li><li>Si hace falta una pausa, el temporizador se detiene sin penalizar.</li><li>No subas fotos con caras ni voces de otras personas.</li></ul></div>`,
+
+proyecto:()=>`
+  <h1>El proyecto</h1>
+  <p>Prototipo escolar inspirado en el caso “Sabores sin barrera” (CBTis No. 92). Es una propuesta de diseño: no afirma haber demostrado mejoras en el aprendizaje.</p>
+  <p class="small muted">Los apoyos se ofrecen a todo el alumnado y no dependen de un diagnóstico. En este prototipo los datos solo se guardan en tu navegador.</p>
+  <button class="btn sec" data-reset-all>Borrar mis datos de prueba</button>`
+};
+
+function render(){
+  document.documentElement.classList.toggle("grande",S.perfil.textoGrande);
+  document.querySelectorAll(".apoyo").forEach(b=>{const on=S.perfil[b.dataset.apoyo];b.setAttribute("aria-pressed",on);b.querySelector(".st").textContent=on?"Activado":"Apagado"});
+  $("#where").textContent=NOMBRES[S.screen]||"";
+  const sec={catalogo:"catalogo",receta_info:"catalogo",seguridad:"catalogo",receta:"catalogo",reto:"catalogo",evidencia:"catalogo",cierre:"catalogo",apoyos:"apoyos",adulto:"adulto",proyecto:"proyecto"}[S.screen];
+  document.querySelectorAll("nav.bottom button").forEach(b=>{if(b.dataset.go===sec)b.setAttribute("aria-current","page");else b.removeAttribute("aria-current")});
+  app.innerHTML=(V[S.screen]||V.inicio)();
+}
+
+function toggleApoyo(k,val){
+  S.perfil[k]= val===undefined? !S.perfil[k] : val;
+  S.perfil.historial.push({apoyo:k,activo:S.perfil[k],pantalla:S.screen,fecha:new Date().toISOString()});
+  save(); render();  // el progreso (paso, hechos, tiempos) no se toca
+}
+
+let grabando=false, rec=null;
+document.addEventListener("click",e=>{
+  const t=e.target.closest("button,[data-go]"); if(!t) return;
+  if(t.dataset.apoyo) return toggleApoyo(t.dataset.apoyo);
+  if(t.dataset.go && !t.disabled) return go(t.dataset.go);
+  if(t.dataset.say) return say(decodeURIComponent(t.dataset.say), t.dataset.clip);
+  if(t.hasAttribute("data-timer")){ if(S.corriendo) S.pausas++; S.corriendo=!S.corriendo; save(); return render(); }
+  if(t.hasAttribute("data-next")){ if(!S.hechos.includes(S.paso)) S.hechos.push(S.paso); if(S.paso<5){S.paso++;save();return render()} return go("reto"); }
+  if(t.hasAttribute("data-prev")){ S.paso=Math.max(0,S.paso-1); save(); return render(); }
+  if(t.dataset.reto){ const [q,o]=t.dataset.reto.split(":").map(Number); S.reto[q]=o; save(); return render(); }
+  if(t.hasAttribute("data-audio")) return toggleAudio();
+  if(t.dataset.estilo){ S.perfil.voz.estilo=t.dataset.estilo; S.perfil.historial.push({apoyo:"voz",estilo:t.dataset.estilo,fecha:new Date().toISOString()}); save(); render(); return say("Hola. Así sueno con este estilo."); }
+  if(t.hasAttribute("data-probar")) return say("Hola. Soy tu voz de apoyo. Paso uno: lava tus manos.","prueba_voz");
+  if(t.hasAttribute("data-reset")){ Object.assign(S,{seg:{},paso:0,hechos:[],tiempos:[0,0,0,0,0,0],pausas:0,corriendo:false,reto:{},ev:{foto:null,audio:false,texto:""}}); return go("catalogo"); }
+  if(t.hasAttribute("data-reset-all")){ try{localStorage.removeItem(KEY)}catch(e){} location.href=location.pathname; }
+});
+document.addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.sw) return toggleApoyo(t.dataset.sw,t.checked);
+  if(t.hasAttribute("data-voz")){ S.perfil.voz.nombre=t.value; save(); return; }
+  if(t.dataset.seg){ S.seg[t.dataset.seg]=t.checked; save(); return render(); }
+  if(t.dataset.hecho!==undefined){ const i=+t.dataset.hecho; S.hechos=t.checked?[...new Set([...S.hechos,i])]:S.hechos.filter(x=>x!==i); if(t.checked&&i===S.paso&&i<5&&!S.perfil.unPaso)S.paso=i+1; save(); return render(); }
+  if(t.hasAttribute("data-foto") && t.files[0]){ const r=new FileReader(); r.onload=()=>{S.ev.foto=r.result; try{save()}catch(e){} render()}; r.readAsDataURL(t.files[0]); }
+});
+document.addEventListener("input",e=>{ if(e.target.hasAttribute("data-texto")){ S.ev.texto=e.target.value; save(); const b=document.querySelector('[data-go="cierre"]'); const ok=!!(S.ev.foto||S.ev.audio||S.ev.texto.trim()); b.disabled=!ok; b.textContent=ok?"Enviar a mi docente":"Agrega al menos un formato"; }});
+
+async function toggleAudio(){
+  if(grabando){ rec&&rec.state!=="inactive"&&rec.stop(); grabando=false; S.ev.audio=true; save(); return render(); }
+  try{ const st=await navigator.mediaDevices.getUserMedia({audio:true}); rec=new MediaRecorder(st); rec.onstop=()=>st.getTracks().forEach(x=>x.stop()); rec.start(); grabando=true; render(); }
+  catch(err){ S.ev.audio=true; save(); render(); } // sin micrófono: se simula la grabación
+}
+render();
+</script>
+</body>
+</html>
